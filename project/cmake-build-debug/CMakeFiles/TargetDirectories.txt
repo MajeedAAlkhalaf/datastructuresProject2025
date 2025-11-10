@@ -1,0 +1,3 @@
+C:/Users/LENOVO/Desktop/term 3 uni/Data structures and algorithms/project/cmake-build-debug/CMakeFiles/project.dir
+C:/Users/LENOVO/Desktop/term 3 uni/Data structures and algorithms/project/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/LENOVO/Desktop/term 3 uni/Data structures and algorithms/project/cmake-build-debug/CMakeFiles/rebuild_cache.dir
