@@ -197,7 +197,7 @@ class BST {
 
   void displayMovies(){
     /*DISPLAY FUNCTION
-      Displays all movies in the BST in ascending order of ID.*/
+      Displays all movies in the BST in ascending order of ID*/
     if(root == nullptr){
       cout << "The movie system is currently empty." << endl;
     } else {
