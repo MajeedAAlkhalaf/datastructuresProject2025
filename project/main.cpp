@@ -2,6 +2,8 @@
 #include <string>
 using namespace std;
 
+const int max_rent = 10;
+
 //movie struct
 struct Movie{
   int id;
@@ -9,14 +11,13 @@ struct Movie{
   string genre;
   float price;
 
-  //default constructor
   Movie(){
     id = 0;
     title = "";
     genre = "";
     price = 0;
   }
-  //parametric constructor
+
   Movie(int id, string title, string genre, float price){
     this->id = id;
     this->title = title;
@@ -24,6 +25,30 @@ struct Movie{
     this->price = price;
   }
 };
+
+//Customer struct
+struct Customer {
+  int id;
+  string name;
+  string phoneNumber;
+  string email;
+  Movie rentedMovies[max_rent];
+
+  Customer() {
+    id = 0;
+    name = "";
+    phoneNumber = "";
+    email = "";
+  }
+
+  Customer(int id, string name, string phoneNumber, string email) {
+    this->id = id;
+    this->name = name;
+    this->phoneNumber = phoneNumber;
+    this->email = email;
+  }
+};
+
 
 
 //node for BST
@@ -40,6 +65,170 @@ struct Node {
 };
 
 
+//node for Linked List
+struct CustomerNode {
+  Customer customer;
+  CustomerNode *next;
+
+  CustomerNode(const Customer& c) {
+    customer = c;
+    next = nullptr;
+  }
+};
+
+//Circular Linked List
+class CLL {
+
+private:
+  CustomerNode* head;
+  CustomerNode* tail;
+  int size;
+
+public:
+  CLL() {
+    /*CONSTRUCTOR
+     *will initialize the linked list*/
+    head = nullptr;
+    tail = nullptr;
+    size = 0;
+  }
+
+  ~CLL() {
+    /*DESTRUCTOR
+     *will free all the memory if it is not being used*/
+    if (head == nullptr) {
+      return;
+    }
+
+    CustomerNode* current = head;
+    CustomerNode* next = nullptr;
+
+    do {
+      next = current->next;
+      delete current;
+      current = next;
+    }while (current != head);
+
+    // all memory will be freed
+  }
+
+  void insertCustomer(const Customer& customer) {
+    /* INSERT FUNCTION
+     * will take a Customer struct as a parameter
+     * adds it to the linked list, displays messages*/
+
+    CustomerNode* newNode = new CustomerNode(customer);
+
+    if (head == nullptr) {
+      head = newNode;
+      tail = newNode;
+      newNode->next = newNode; //circularize that bih
+      size++;
+    } else {
+      tail->next = newNode;
+      newNode->next = head;
+      tail = newNode;
+      size++;
+    }
+    cout << "Customer " << customer.name << " added successfully!";
+  }
+
+  void deleteCustomer(int customerID) {
+    /*DELETE FUNCTION
+     *takes the id of the customer as a parameter
+     *will delete the customer if found, displays messages*/
+    if (head == nullptr) {
+      return;
+    }
+    CustomerNode* current = head;
+    CustomerNode* previous = nullptr;
+    do{
+    if (current->customer.id == customerID) {
+      //if it is the only node
+      if (current->next == current) {
+        delete current;
+        head = nullptr;
+        tail = nullptr;
+
+      }
+      //if it is the head node
+      else if (current == head) {
+        head = current->next;
+        delete current;
+        tail->next = head;
+
+      }
+      //if it is any other node
+      else {
+        previous->next = current->next;
+        delete current;
+      }
+      size--;
+      cout << "Customer with ID: " << customerID << " deleted!";
+      return;
+    }
+      previous = current;
+      current = current->next;
+
+    }while (current != head);
+
+    cout << "Customer with ID: " << customerID << " not found :(" << endl;
+  }
+
+  Customer searchCustomer(int customerID) {
+    /*SEARCH FUNCTION
+     *will search for the customer in the linked list based on the provided ID
+     *if found, the customer struct will be returned
+     *if not found, will return a newly initialized customer struct with null values*/
+    CustomerNode* current = head;
+    do {
+      if (current->customer.id == customerID) {
+        cout << "Customer with ID: " << customerID << " found!" << endl;
+        return current->customer;
+      }
+      current = current->next;
+    }while (current != head);
+
+    cout << "Customer with ID: " << customerID << " not found :(" << endl;
+    return Customer();
+  }
+
+  bool isEmpty() {
+    if (head == nullptr) {
+      return true;
+    }
+    return false;
+  }
+
+  int getSize() {
+    return size;
+  }
+
+  void updateCustomerInfo(int id, string name, string phoneNumber, string email) {
+    /* UPDATE FUNCTION
+     * will take all the info of the customer as parameters
+     * then it will search for the customer according to ID
+     * then it will change the customer info according to parameters*/
+    bool found = false;
+    CustomerNode* current = head;
+    do {
+      if (current->customer.id == id) {
+        found = true;
+        break;
+      }
+      current = current->next;
+    }while (current != head);
+
+    if (found) {
+      current->customer.id = id;
+      current->customer.name = name;
+      current->customer.phoneNumber = phoneNumber;
+      current->customer.email = email;
+      cout << "Customer information updated successfully :D" << endl;
+    } else {
+      cout << "Customer not found :(" << endl;
+    }
+};
 
 //Binary search tree
 class BST {
@@ -291,6 +480,9 @@ void delete_movie(BST &bst) {
   cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
   bst.deleteNode(id);
 }
+
+
+
 
 
 int main () {
