@@ -78,7 +78,6 @@ struct CustomerNode {
 
 //Circular Linked List
 class CLL {
-
 private:
   CustomerNode* head;
   CustomerNode* tail;
@@ -143,30 +142,30 @@ public:
     CustomerNode* current = head;
     CustomerNode* previous = nullptr;
     do{
-    if (current->customer.id == customerID) {
-      //if it is the only node
-      if (current->next == current) {
-        delete current;
-        head = nullptr;
-        tail = nullptr;
+      if (current->customer.id == customerID) {
+        //if it is the only node
+        if (current->next == current) {
+          delete current;
+          head = nullptr;
+          tail = nullptr;
 
-      }
-      //if it is the head node
-      else if (current == head) {
-        head = current->next;
-        delete current;
-        tail->next = head;
+        }
+        //if it is the head node
+        else if (current == head) {
+          head = current->next;
+          delete current;
+          tail->next = head;
 
+        }
+        //if it is any other node
+        else {
+          previous->next = current->next;
+          delete current;
+        }
+        size--;
+        cout << "Customer with ID: " << customerID << " deleted!";
+        return;
       }
-      //if it is any other node
-      else {
-        previous->next = current->next;
-        delete current;
-      }
-      size--;
-      cout << "Customer with ID: " << customerID << " deleted!";
-      return;
-    }
       previous = current;
       current = current->next;
 
@@ -228,10 +227,11 @@ public:
     } else {
       cout << "Customer not found :(" << endl;
     }
+  }
 };
 
-//Binary search tree
-class BST {
+ //Binary search tree
+  class BST {
   private:
     //this section will contain helper functions which are private
 
@@ -326,6 +326,24 @@ class BST {
       return nullptr;
     }
 
+    void displayAssistant(Node* node){
+      if(node != nullptr){
+        // 1. Traverse Left Subtree
+        displayAssistant(node->left);
+
+        // 2. Visit Node (Print Movie Details)
+        cout << "------------------------------------------" << endl;
+        cout << "ID:    " << node->movie.id << endl;
+        cout << "Title: " << node->movie.title << endl;
+        cout << "Genre: " << node->movie.genre << endl;
+        cout << "Price: " << node->movie.price << " SAR" << endl;
+        cout << "------------------------------------------" << endl;
+
+        // 3. Traverse Right Subtree
+        displayAssistant(node->right);
+      }
+    }
+
   public:
     //this section will contain the functions which you appear to you and you can use
     Node* root;
@@ -362,6 +380,18 @@ class BST {
         cout << "ID not found." << endl;
       }
     }
+    void displayMovies(){
+      /*DISPLAY FUNCTION
+        Displays all movies in the BST in ascending order of ID*/
+      if(root == nullptr){
+        cout << "The movie system is currently empty." << endl;
+      } else {
+        cout << "\n--- Current Movie Inventory (Sorted by ID) ---" << endl;
+        displayAssistant(root);
+        cout << "--- End of Inventory ---\n" << endl;
+      }
+    }
+
 
     bool isEmpty(){
       /*IS EMPTY FUNCTION
@@ -395,96 +425,211 @@ class BST {
       CountNodesAssistant(root, count);
       return count;
     }
-};
+  };
 
-//Adding movie function
-void add_movie(BST &bst) { //Pass the BST by reference
-  int id;
-  string title;
-  string genre;
-  float price;
+  //Adding movie function
+  void add_movie(BST &bst) { //Pass the BST by reference
+    int id;
+    string title;
+    string genre;
+    float price;
 
-  cout << "---Add New Movie---" << endl;
-  // Adding Movie ID
-  cout << "Enter ID: ";
-  // ID Validation Loop
-  while (!(cin >> id)) {
-    cout << "Error: Please enter a valid number for ID: ";
-    cin.clear();// 1. Resets the "fail state"
-    cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer and we use 10000 as a large number to clear the line
+    cout << "---Add New Movie---" << endl;
+    // Adding Movie ID
+    cout << "Enter ID: ";
+    // ID Validation Loop
+    while (!(cin >> id)) {
+      cout << "Error: Please enter a valid number for ID: ";
+      cin.clear();// 1. Resets the "fail state"
+      cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer and we use 10000 as a large number to clear the line
+    }
+    // End of Validation
+    cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
+
+    // Adding Movie Title
+    cout << "Enter title: ";
+    getline(cin, title);
+
+    // Adding Movie Genre
+    cout << "Enter genre: ";
+    getline(cin, genre);
+
+    // Adding Movie Price
+    cout << "Enter price: ";
+    // Price Validation Loop
+    while (!(cin >> price)) {
+      cout << "Error: Please enter a valid number for Price: ";
+      cin.clear(); // 1. Resets the "fail state"
+      cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
+    }// End of Validation
+
+    cin.ignore(10000, '\n');// Clear the 'Enter' key after the valid price
+
+    //
+    Movie newMovie(id, title, genre, price);
+    bst.insert(newMovie);
   }
-  // End of Validation
-  cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
 
-  // Adding Movie Title
-  cout << "Enter title: ";
-  getline(cin, title);
+  void search_movie(BST &bst) {
+    int id;
+    cout << "Enter ID you want to search: ";
 
-  // Adding Movie Genre
-  cout << "Enter genre: ";
-  getline(cin, genre);
+    // ID Validation Loop
+    while (!(cin >> id)) {
+      cout << "Error: Please enter a valid number for ID: ";
+      cin.clear();// 1. Resets the "fail state"
+      cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
+    }// End of Validation
 
-  // Adding Movie Price
-  cout << "Enter price: ";
-  // Price Validation Loop
-  while (!(cin >> price)) {
-    cout << "Error: Please enter a valid number for Price: ";
-    cin.clear(); // 1. Resets the "fail state"
-    cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
-  }// End of Validation
+    cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
 
-  cin.ignore(10000, '\n');// Clear the 'Enter' key after the valid price
+    Movie *foundmovie = bst.searchByID(id);
 
-  //
-  Movie newMovie(id, title, genre, price);
-  bst.insert(newMovie);
-}
-
-void search_movie(BST &bst) {
-  int id;
-  cout << "Enter ID you want to search: ";
-
-  // ID Validation Loop
-  while (!(cin >> id)) {
-    cout << "Error: Please enter a valid number for ID: ";
-    cin.clear();// 1. Resets the "fail state"
-    cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
-  }// End of Validation
-
-  cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
-
-  Movie *foundmovie = bst.searchByID(id);
-
-  if (foundmovie != nullptr) {
-    cout << "--- Movie Found ---" << endl;
-    cout << "ID: " << foundmovie->id << endl;
-    cout << "Title: " << foundmovie->title << endl;
-    cout << "Genre: " << foundmovie->genre << endl;
-    cout << "Price: $" << foundmovie->price << endl;
+    if (foundmovie != nullptr) {
+      cout << "--- Movie Found ---" << endl;
+      cout << "ID: " << foundmovie->id << endl;
+      cout << "Title: " << foundmovie->title << endl;
+      cout << "Genre: " << foundmovie->genre << endl;
+      cout << "Price: $" << foundmovie->price << endl;
+    }
   }
-}
 
-void delete_movie(BST &bst) {
-  int id;
-  cout << "Enter Movie ID You want to delete: ";
-  cin >> id;
-  // ID Validation Loop
-  // This loop will run as long as the input is not a valid number
-  while (!(cin >> id))
+  void delete_movie(BST &bst) {
+    int id;
+    cout << "Enter Movie ID You want to delete: ";
+    cin >> id;
+    // ID Validation Loop
+    // This loop will run as long as the input is not a valid number
+    while (!(cin >> id))
     {
       cout << "Error: Please enter a valid number for ID: ";
       cin.clear(); // 1. Resets the "fail state"
       cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
     }// End of Validation
 
-  cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
-  bst.deleteNode(id);
+    cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
+    bst.deleteNode(id);
+  };
+
+
+
+void displayMenu(BST &Movies) {
+string name;
+int choice ;
+int a;
+int b;
+int id;
+    do {
+        cout<<"1.Customer"<<endl;
+        cout<<"2.Employee"<<endl;
+        cout<<"Enter the number of the number you want to enter: ";
+        cin>>choice;
+
+        switch (choice) {
+            case 1:
+            {
+                cout<<"Enter your Name: ";
+                cin>>name;
+                cout<<"Enter your ID: ";
+                cin>>id;
+
+                do {
+                    cout<<"------------------------------------------"<<endl;
+                    cout<<"1-search moive "<<endl;
+                    cout<<"2-display movies"<<endl;
+                    cout<<"3-Rent a movie"<<endl;
+                    cout<<"4-exit"<<endl;
+                    cout<<"------------------------------------------"<<endl;
+                    cout<<"Enter the number of the number you want to enter: ";
+                    cin>>a;
+                    switch (a)
+                {
+                        case 1:
+                        {
+                            cout<<"Search"<<endl;
+                            break;
+                        }
+                        case 2:
+                        {
+                           Movies.displayMovies();
+                            break;
+                        }
+                        case 3:
+                        {
+                            cout<<"Rent"<<endl;
+                            break;
+                        }
+
+                }
+                } while (a != 4);
+
+                break;
+            }
+            case 2:
+            {
+                do {
+                    cout<<"------------------------------------------"<<endl;
+                    cout<<"1-search moive "<<endl;
+                    cout<<"2-display movies"<<endl;
+                    cout<<"3-add movie"<<endl;
+                    cout<<"4-delete movie"<<endl;
+                    cout<<"5-exit"<<endl;
+                    cout<<"------------------------------------------"<<endl;
+                    cout<<"Enter the number of the number you want to enter: ";
+                    cin>>b;
+                    switch (b) {
+                        case 1:
+                        {
+                          cout << "Enter movie ID to search: ";
+                          cin >> id;
+                           cout<< Movies.searchByID(id);
+                            break;
+                        }
+                        case 2:
+                        {
+                            Movies.displayMovies();
+                            break;
+                        }
+                        case 3:
+                        {
+                          int newId;
+                          string newTitle, newGenre;
+                          float newPrice;
+                          cout << "Enter ID: "; cin >> newId;
+                          cout << "Enter Title: "; cin.ignore(); getline(cin, newTitle);
+                          cout << "Enter Genre: "; getline(cin, newGenre);
+                          cout << "Enter Price: "; cin >> newPrice;
+                          Movie newMovie(newId,newTitle,newGenre,newPrice);
+                         Movies.insert(newMovie);
+                            break;
+                        }
+                        case 4:
+                        {
+                          cout << "Enter movie ID to delete: ";
+                          cin >> id;
+                          Movies.deleteNode(id);
+                            break;
+                        }
+
+
+                    }
+                } while (b != 5);
+            }
+        }
+    } while (choice != 3);
 }
 
 
 
 
+int main() {
+  BST Movies;
 
-int main () {
-return 0;
+  displayMenu(Movies);
+
+  return 0;
 }
+
+
+
+
