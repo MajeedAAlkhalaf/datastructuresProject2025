@@ -637,6 +637,109 @@ void delete_customer(CLL &cll) {//Pass the CLL by reference
   cout << endl;
 }
 
+void Rent_Movie()   //Rentting a movie function
+{
+
+  int MovieID;
+
+  cout << "Enter The Movie ID you want to Rent: ";
+  cin >> MovieID;
+
+  Movie *MovieToRent = bst.searchByID(MovieID);  //Finding the wanted movie
+
+  if (MovieToRent == NULL)  // Check if Movie doesn't exist
+  {
+  cout << "Movie not found." << endl;
+  return;
+  }
+
+
+  if (MovieToRent->quantity < 1 )  //Checking if Movie copies exist
+  {
+    cout << "The Movie can't be rented due to insufficient quantity" << endl;
+    return;
+  }
+
+
+   int CustomerID;
+
+   cout << "Enter The ID for the customer you want to Rent a movie to: ";
+   cin >> CustomerID;
+
+   Customer *Renter = searchCustomer(CustomerID);  //Finding the customer info.
+
+
+   if (Renter == NULL)
+   {
+      cout << "Customer not found." << endl;
+      return;
+   }
+
+
+   if (Renter-> counter == 10)  //Checking if customer may rent a movie
+   {
+     cout << "The customer have rented the maximum number allowed, customer must retun a movie to be able to rent another one"<<endl;
+     return;
+   }
+
+   Renter->RentedMovies[Renter-> counter] = MovieToRent;  //add the movie to the customer's Rented Movies List
+   MovieToRent->quantity--;  //Decrease The number of avilable copies of the movie
+   Renter->counter++;  //increase the number of rented movies by the renter
+
+   cout << "The Movie "<<MovieToRent-> name <<" is now rented to the customer "<<Renter->name<<endl;
+
+}
+
+
+void Return_Movie()   //Returnig a rented moviefunction
+{
+
+  int RenterID;
+
+  cout << "Enter The Renter ID: ";
+  cin >> RenterID;
+
+  Customer *Renter = searchCustomer(RenterID);  //Finding the Renter Info.
+
+  if (Renter== NULL)  // Check if renter doesn't exist
+  {
+    cout << "The Customer does not exist" << endl;
+    return;
+  }
+  int MovieID, checker = 0;
+  Movie *RentedMovie = NULL;
+
+  cout << "Enter The ID of the movie you want to Return: ";
+  cin >> MovieID;
+
+  for(int i=0;i<Renter->counter;i++)  //Loop go through all of the rented movies that the renter have
+  {
+    if(Renter->RentedMovies[i]-> id==MovieID)  // check the movies IDs
+    {
+      RentedMovie = Renter->RentedMovies[i];  //finding the movie that the Renter want to return
+      checker=1;  //When the movie found assaign 1 to this variable (true)
+    }
+    if (checker==1)  //Check if this variable is 1 (true) to start the process
+    {
+      Renter->RentedMovies[i]=Renter->RentedMovies[i+1];  //removing the movie from the renter's rented movies & shifting the rest of the elements if exist
+    }
+  }
+  if (checker==1)  //Check if this variable is 1 (true)
+  {
+  RentedMovie->quantity++;  //Increase The number of avilable copies of the movie
+  Renter->counter--;  //Decrease the number of rented movies by the renter
+  cout << "The movie " << RentedMovie->name << " has been successfully returned by " << Renter->name << "." << endl;
+  }
+  else
+  {
+    cout << "This movie is not rented by the customer." << endl;
+    return;
+  }
+}
+
+
+
+
 int main () {
   BST bst;
   CLL cll;
