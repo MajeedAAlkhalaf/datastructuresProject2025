@@ -180,6 +180,11 @@ public:
      *if found, the customer struct will be returned
      *if not found, will return a newly initialized customer struct with null values*/
     CustomerNode* current = head;
+
+    if (head == nullptr) {
+      return Customer();
+    }
+
     do {
       if (current->customer.id == customerID) {
         cout << "Customer with ID: " << customerID << " found!" << endl;
@@ -413,7 +418,6 @@ public:
       if(found != false){
         return &(temp->movie);
       }else{
-        cout << "Node not found" << endl;
         return nullptr;
       }
     }
@@ -427,89 +431,312 @@ public:
     }
   };
 
-  //Adding movie function
-  void add_movie(BST &bst) { //Pass the BST by reference
-    int id;
-    string title;
-    string genre;
-    float price;
+//Adding movie function
+void add_movie(BST &bst) { //Pass the BST by reference
+  int id;
+  string title;
+  string genre;
+  float price;
+  Movie *existingMovie = nullptr;
 
-    cout << "---Add New Movie---" << endl;
-    // Adding Movie ID
+  cout << "---Add New Movie---" << endl;
+
+  do {
+    //Adding Movie ID
     cout << "Enter ID: ";
     // ID Validation Loop
     while (!(cin >> id)) {
       cout << "Error: Please enter a valid number for ID: ";
       cin.clear();// 1. Resets the "fail state"
-      cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer and we use 10000 as a large number to clear the line
-    }
-    // End of Validation
-    cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
-
-    // Adding Movie Title
-    cout << "Enter title: ";
-    getline(cin, title);
-
-    // Adding Movie Genre
-    cout << "Enter genre: ";
-    getline(cin, genre);
-
-    // Adding Movie Price
-    cout << "Enter price: ";
-    // Price Validation Loop
-    while (!(cin >> price)) {
-      cout << "Error: Please enter a valid number for Price: ";
-      cin.clear(); // 1. Resets the "fail state"
       cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
     }// End of Validation
+    cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
 
-    cin.ignore(10000, '\n');// Clear the 'Enter' key after the valid price
+    // Check if ID exists (searchByID is the key check)
+    existingMovie = bst.searchByID(id);
 
-    //
-    Movie newMovie(id, title, genre, price);
-    bst.insert(newMovie);
+    if (existingMovie != nullptr) {
+      cout << "Movie with ID " << id << " already exists: " << existingMovie->title << ". Please enter a new, unique ID." << endl;
+    }
+  }while (existingMovie != nullptr);
+
+  // Adding Movie Title
+  cout << "Enter title: ";
+  getline(cin, title);
+
+  // Adding Movie Genre
+  cout << "Enter genre: ";
+  getline(cin, genre);
+
+  // Adding Movie Price
+  cout << "Enter price: ";
+
+  // Price Validation Loop
+  while (!(cin >> price)) {
+    cout << "Error: Please enter a valid number for Price: ";
+    cin.clear(); // 1. Resets the "fail state"
+    cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
+  }// End of Validation
+  cin.ignore(10000, '\n');// Clear the 'Enter' key after the valid price
+
+  //Inserting movie details
+  Movie newMovie(id, title, genre, price);
+  bst.insert(newMovie);
+}
+
+//Searching movie function
+void search_movie(BST &bst) {//Pass the BST by reference
+  int id;
+  cout << "Enter ID you want to search: ";
+
+  // ID Validation Loop
+  while (!(cin >> id)) {
+    cout << "Error: Please enter a valid number for ID: ";
+    cin.clear();// 1. Resets the "fail state"
+    cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
+  }// End of Validation
+  cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
+
+  // Calls BST method to search for a movie by ID
+  Movie *foundmovie = bst.searchByID(id);
+
+  //Showing Movie details
+  if (foundmovie != nullptr) {
+    cout << "--- Movie Found ---" << endl;
+    cout << "--- Movie Details ---" << endl;
+    cout << "ID: " << foundmovie->id << endl;
+    cout << "Title: " << foundmovie->title << endl;
+    cout << "Genre: " << foundmovie->genre << endl;
+    cout << "Price: $" << foundmovie->price << endl;
   }
+}
 
-  void search_movie(BST &bst) {
-    int id;
-    cout << "Enter ID you want to search: ";
+//Deleting movie function
+void delete_movie(BST &bst) {//Pass the BST by reference
+  int id;
+  cout << "Enter Movie ID You want to delete: ";
 
+  // ID Validation Loop
+  while (!(cin >> id)) {
+    cout << "Error: Please enter a valid number for ID: ";
+    cin.clear(); // 1. Resets the "fail state"
+    cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
+  }
+  cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
+
+  //Call BST method to delete movie By ID
+  bst.deleteNode(id);
+}
+
+//Adding customer function
+void add_customer(CLL &cll) {//Pass the CLL by reference
+  int id;
+  string name;
+  string phoneNumber;
+  string email;
+  Customer existingCustomer;
+
+  cout << "---Add New Customer---" << endl;
+
+  do {
     // ID Validation Loop
+    //Adding customer ID
+    cout << "Enter ID: ";
     while (!(cin >> id)) {
       cout << "Error: Please enter a valid number for ID: ";
       cin.clear();// 1. Resets the "fail state"
       cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
-    }// End of Validation
-
+    }
     cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
 
-    Movie *foundmovie = bst.searchByID(id);
-
-    if (foundmovie != nullptr) {
-      cout << "--- Movie Found ---" << endl;
-      cout << "ID: " << foundmovie->id << endl;
-      cout << "Title: " << foundmovie->title << endl;
-      cout << "Genre: " << foundmovie->genre << endl;
-      cout << "Price: $" << foundmovie->price << endl;
+    // Check if ID exists (searchCustomer is the key check)
+    existingCustomer = cll.searchCustomer(id);
+    if (existingCustomer.id != 0) {
+      cout << "Please enter a new, unique ID." << endl;
     }
+  }while (existingCustomer.id != 0);
+
+  //Adding customer name
+  cout << "Enter name: ";
+  getline(cin, name);
+
+  //Adding customer phone number
+  cout << "Enter phone number: ";
+  getline(cin, phoneNumber);
+
+  //Adding customer email
+  cout << "Enter email: ";
+  getline(cin, email);
+
+  //Inserting customer details
+  Customer customer(id, name, phoneNumber, email);
+  cll.insertCustomer(customer);
+  cout << endl;
+}
+
+//Searching customer function
+void search_customer(CLL &cll) {//Pass the CLL by reference
+  int id;
+  cout << "Enter ID you want to search: ";
+
+  // ID Validation Loop
+  while (!(cin >> id)) {
+    cout << "Error: Please enter a valid number for ID: ";
+    cin.clear();// 1. Resets the "fail state"
+    cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
+  }
+  cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
+
+  // Calls CLL method to search for a customer by ID
+  Customer foundcustomer = cll.searchCustomer(id);
+
+  //Showing Customer details
+  if (foundcustomer.id != 0) {
+    cout << "--- Customer Found ---" << endl;
+    cout << "ID: " << foundcustomer.id << endl;
+    cout << "Name: " << foundcustomer.name << endl;
+    cout << "Phone Number: " << foundcustomer.phoneNumber << endl;
+    cout << "Email: " << foundcustomer.email << endl;
+    cout << "Rented Movies: " << foundcustomer.rentedMovies << endl;
+  }
+  else {
+    // Customer not found, ask to add
+    char choice;
+    cout << "Customer with ID: " << id << " not found :(" << endl;
+    cout << "Do you want to add this customer? (y/n): ";
+    cin >> choice;
+    // Clear the input buffer up to the newline character to prevent issues with future inputs.
+    cin.ignore(10000, '\n');
+
+    // Convert the input character to lowercase and check if it is 'y' (yes).
+    if (tolower(choice) == 'y') {
+      // If the choice is 'y', call the function to add a new customer,
+      // passing the Circular Linked List (CLL) by reference.
+      add_customer(cll);
+    }
+    // If the choice is not 'y', the function simply returns, and no customer is added.
+  }
+  cout << endl;
+}
+
+//Deleting customer function
+void delete_customer(CLL &cll) {//Pass the CLL by reference
+  int id;
+  cout << "Enter ID you want to delete: ";
+
+  // ID Validation Loop
+  while (!(cin >> id)) {
+    cout << "Error: Please enter a valid number for ID: ";
+    cin.clear();// 1. Resets the "fail state"
+    cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
+  }
+  cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
+
+  // Calls CLL method to delete customer by ID
+  cll.deleteCustomer(id);
+  cout << endl;
+}
+
+void Rent_Movie()   //Rentting a movie function
+{
+
+  int MovieID;
+
+  cout << "Enter The Movie ID you want to Rent: ";
+  cin >> MovieID;
+
+  Movie *MovieToRent = bst.searchByID(MovieID);  //Finding the wanted movie
+
+  if (MovieToRent == NULL)  // Check if Movie doesn't exist
+  {
+  cout << "Movie not found." << endl;
+  return;
   }
 
-  void delete_movie(BST &bst) {
-    int id;
-    cout << "Enter Movie ID You want to delete: ";
-    cin >> id;
-    // ID Validation Loop
-    // This loop will run as long as the input is not a valid number
-    while (!(cin >> id))
-    {
-      cout << "Error: Please enter a valid number for ID: ";
-      cin.clear(); // 1. Resets the "fail state"
-      cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
-    }// End of Validation
 
-    cin.ignore(10000, '\n');// Clear the 'Enter' key press after the valid number
-    bst.deleteNode(id);
-  };
+  if (MovieToRent->quantity < 1 )  //Checking if Movie copies exist
+  {
+    cout << "The Movie can't be rented due to insufficient quantity" << endl;
+    return;
+  }
+
+
+   int CustomerID;
+
+   cout << "Enter The ID for the customer you want to Rent a movie to: ";
+   cin >> CustomerID;
+
+   Customer *Renter = searchCustomer(CustomerID);  //Finding the customer info.
+
+
+   if (Renter == NULL)
+   {
+      cout << "Customer not found." << endl;
+      return;
+   }
+
+
+   if (Renter-> counter == 10)  //Checking if customer may rent a movie
+   {
+     cout << "The customer have rented the maximum number allowed, customer must retun a movie to be able to rent another one"<<endl;
+     return;
+   }
+
+   Renter->RentedMovies[Renter-> counter] = MovieToRent;  //add the movie to the customer's Rented Movies List
+   MovieToRent->quantity--;  //Decrease The number of avilable copies of the movie
+   Renter->counter++;  //increase the number of rented movies by the renter
+
+   cout << "The Movie "<<MovieToRent-> name <<" is now rented to the customer "<<Renter->name<<endl;
+
+}
+
+
+void Return_Movie()   //Returnig a rented moviefunction
+{
+
+  int RenterID;
+
+  cout << "Enter The Renter ID: ";
+  cin >> RenterID;
+
+  Customer *Renter = searchCustomer(RenterID);  //Finding the Renter Info.
+
+  if (Renter== NULL)  // Check if renter doesn't exist
+  {
+    cout << "The Customer does not exist" << endl;
+    return;
+  }
+  int MovieID, checker = 0;
+  Movie *RentedMovie = NULL;
+
+  cout << "Enter The ID of the movie you want to Return: ";
+  cin >> MovieID;
+
+  for(int i=0;i<Renter->counter;i++)  //Loop go through all of the rented movies that the renter have
+  {
+    if(Renter->RentedMovies[i]-> id==MovieID)  // check the movies IDs
+    {
+      RentedMovie = Renter->RentedMovies[i];  //finding the movie that the Renter want to return
+      checker=1;  //When the movie found assaign 1 to this variable (true)
+    }
+    if (checker==1)  //Check if this variable is 1 (true) to start the process
+    {
+      Renter->RentedMovies[i]=Renter->RentedMovies[i+1];  //removing the movie from the renter's rented movies & shifting the rest of the elements if exist
+    }
+  }
+  if (checker==1)  //Check if this variable is 1 (true)
+  {
+  RentedMovie->quantity++;  //Increase The number of avilable copies of the movie
+  Renter->counter--;  //Decrease the number of rented movies by the renter
+  cout << "The movie " << RentedMovie->name << " has been successfully returned by " << Renter->name << "." << endl;
+  }
+  else
+  {
+    cout << "This movie is not rented by the customer." << endl;
+    return;
+  }
+}
+
 
 void displayMenu(BST &Movies, CLL &Customers) {
     string name;
@@ -577,53 +804,12 @@ void displayMenu(BST &Movies, CLL &Customers) {
                     switch (a) {
                         case 1: // Add New Customer (CLL)
                         {
-                            cout << "\n--- Add New Customer ---" << endl;
-                            int new_id;
-                            string new_name, new_phone, new_email;
-
-                            cout << "Enter Customer ID: ";
-                            while (!(cin >> new_id)) {
-                                cout << "Error: Please enter a valid number for ID: ";
-                                cin.clear();
-                                cin.ignore(10000, '\n');
-                            }
-                            cin.ignore(10000, '\n');
-
-                            cout << "Enter Name: ";
-                            getline(cin, new_name);
-
-                            cout << "Enter Phone Number: ";
-                            getline(cin, new_phone);
-
-                            cout << "Enter Email: ";
-                            getline(cin, new_email);
-
-                            Customer newCustomer(new_id, new_name, new_phone, new_email);
-                            Customers.insertCustomer(newCustomer);
-                            cout << endl;
+                          add_customer(Customers);
                             break;
                         }
                         case 2: // Search Customer (CLL)
                         {
-                            cout << "\n--- Search Customer ---" << endl;
-                            int customerID;
-                            cout << "Enter Customer ID to search: ";
-                            while (!(cin >> customerID)) {
-                                cout << "Error: Please enter a valid number for ID: ";
-                                cin.clear();
-                                cin.ignore(10000, '\n');
-                            }
-                            cin.ignore(10000, '\n');
-
-                            Customer foundCustomer = Customers.searchCustomer(customerID);
-                            if (foundCustomer.id != 0) { // Check if a valid customer was returned
-                                cout << "\n--- Customer Details ---" << endl;
-                                cout << "ID: " << foundCustomer.id << endl;
-                                cout << "Name: " << foundCustomer.name << endl;
-                                cout << "Phone: " << foundCustomer.phoneNumber << endl;
-                                cout << "Email: " << foundCustomer.email << endl;
-                              cout << "E-mail: "<< endl;
-                            }
+                            search_customer(Customers);
                             break;
                         }
                         case 3: // Update Customer Info (CLL)
@@ -659,65 +845,17 @@ void displayMenu(BST &Movies, CLL &Customers) {
                         }
                         case 4: // Delete Customer (CLL)
                         {
-                            cout << "\n--- Delete Customer ---" << endl;
-                            int delete_id;
-                            cout << "Enter Customer ID to delete: ";
-
-                            while (!(cin >> delete_id)) {
-                                cout << "Error: Please enter a valid number for ID: ";
-                                cin.clear();
-                                cin.ignore(10000, '\n');
-                            }
-                            cin.ignore(10000, '\n');
-
-                            Customers.deleteCustomer(delete_id);
+                            delete_customer(Customers);
                             break;
                         }
                         case 5: // Rent a Movie (CLL + BST) - Basic Implementation
                         {
-                            cout << "\n--- Rent a Movie ---" << endl;
-                            int customerID, movieID;
-
-                            cout << "Enter Customer ID: ";
-                            while (!(cin >> customerID)) {
-                                cout << "Error: Please enter a valid number for ID: ";
-                                cin.clear();
-                                cin.ignore(10000, '\n');
-                            }
-                            cin.ignore(10000, '\n');
-
-                            Customer customerToRent = Customers.searchCustomer(customerID);
-                            if (customerToRent.id == 0) {
-                                break; // Customer not found
-                            }
-
-                            cout << "Enter Movie ID to rent: ";
-                            while (!(cin >> movieID)) {
-                                cout << "Error: Please enter a valid number for ID: ";
-                                cin.clear();
-                                cin.ignore(10000, '\n');
-                            }
-                            cin.ignore(10000, '\n');
-
-                            Movie *movieToRent = Movies.searchByID(movieID);
-                            if (movieToRent == nullptr) {
-                                // searchByID already prints "Node not found"
-                                break; // Movie not found
-                            }
-
-                            // --- Actual Rent Logic (Needs implementation in Customer struct/CLL class) ---
-                            // For now, we'll just confirm availability:
-                            cout << "\n--- Transaction Summary ---" << endl;
-                            cout << "Customer: " << customerToRent.name << endl;
-                            cout << "Movie: " << movieToRent->title << " (" << movieToRent->price << " SAR)" << endl;
-                            cout << "Status: Ready for rental processing." << endl;
-                            // You would need to add a function in CLL to assign the movie to the customer's rentedMovies array.
-
+                            Rent_Movie();
                             break;
                         }
                         case 6: // Return Movie (Needs implementation)
                         {
-                            cout << "\nReturn functionality to be implemented." << endl;
+                           Return_Movie();
                             break;
                         }
                         case 7: // Display All Movies (BST)
@@ -819,18 +957,12 @@ void displayMenu(BST &Movies, CLL &Customers) {
     } while (choice != 3);
 }
 
-// ... main function requires an adjustment to pass the CLL object ...
-int main() {
-  BST Movies;
-  CLL Customers; // Need to create a Customer Linked List object
+int main () {
+  BST Movies ;
+  CLL Customers;
 
-  Customers.insertCustomer({1, "Ali Ahmad", "0501234567", "ali@mail.com"});
-  Customers.insertCustomer({2, "Fatimah Alsaud", "0559876543", "fatima@mail.com"});
-
-  displayMenu(Movies, Customers); // Pass both the BST and CLL
-
+  add_customer(Customers);
+  search_customer(Customers);
+  add_customer(Customers);
   return 0;
 }
-
-
-
