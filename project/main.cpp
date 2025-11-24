@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 using namespace std;
 
 const int max_rent = 10;
@@ -10,19 +11,22 @@ struct Movie{
   string title;
   string genre;
   float price;
+  int quantity;
 
   Movie(){
     id = 0;
     title = "";
     genre = "";
     price = 0;
+    quantity = 0;
   }
 
-  Movie(int id, string title, string genre, float price){
+  Movie(int id, string title, string genre, float price, int quantity){
     this->id = id;
     this->title = title;
     this->genre = genre;
     this->price = price;
+    this->quantity = quantity;
   }
 };
 
@@ -33,12 +37,14 @@ struct Customer {
   string phoneNumber;
   string email;
   Movie rentedMovies[max_rent];
+  int counter;
 
   Customer() {
     id = 0;
     name = "";
     phoneNumber = "";
     email = "";
+    counter = 0;
   }
 
   Customer(int id, string name, string phoneNumber, string email) {
@@ -46,6 +52,7 @@ struct Customer {
     this->name = name;
     this->phoneNumber = phoneNumber;
     this->email = email;
+    counter = 0;
   }
 };
 
@@ -233,6 +240,26 @@ public:
       cout << "Customer not found :(" << endl;
     }
   }
+
+  void upload(ofstream &file) {
+    if (head == nullptr) {
+      cout << "There is no customer data to upload" << endl;
+      return;
+    }
+
+    CustomerNode* current = head;
+    do {
+      file.write(reinterpret_cast<char*>(&current->customer), sizeof(Customer));
+      current = current->next;
+    }while (current != head);
+  }
+
+  void download(ifstream &file) {
+    Customer current;
+    while (file.read(reinterpret_cast<char*>(&current), sizeof(Customer))) {
+      insertCustomer(current);
+    }
+  }
 };
 
  //Binary search tree
@@ -349,6 +376,15 @@ public:
       }
     }
 
+    void uploadAssistant(Node* node, ofstream &file) {
+      if (node != nullptr) {
+        // In-order traversal to upload all nodes
+        uploadAssistant(node->left, file);
+        file.write(reinterpret_cast<char*>(&node->movie), sizeof(Movie));
+        uploadAssistant(node->right, file);
+      }
+    }
+
   public:
     //this section will contain the functions which you appear to you and you can use
     Node* root;
@@ -429,6 +465,22 @@ public:
       CountNodesAssistant(root, count);
       return count;
     }
+
+    void upload(ofstream &file) {
+      if (isEmpty()) {
+        cout << "There is nothing to upload" << endl;
+        return;
+      }
+      uploadAssistant(root, file);
+    }
+
+    void download(ifstream &file) {
+      Movie tempMovie;
+      while (file.read(reinterpret_cast<char*>(&tempMovie), sizeof(Movie))) {
+        insert(tempMovie);
+      }
+    }
+
   };
 
 //Adding movie function
@@ -437,6 +489,7 @@ void add_movie(BST &bst) { //Pass the BST by reference
   string title;
   string genre;
   float price;
+  int quantity;
   Movie *existingMovie = nullptr;
 
   cout << "---Add New Movie---" << endl;
@@ -479,8 +532,16 @@ void add_movie(BST &bst) { //Pass the BST by reference
   }// End of Validation
   cin.ignore(10000, '\n');// Clear the 'Enter' key after the valid price
 
+  //Insert quantity
+  cout << "Enter quantity available: ";
+  while (!(cin >> quantity)) {
+    cout << "Error: Please enter a valid number for quantity: ";
+    cin.clear();// 1. Resets the "fail state"
+    cin.ignore(10000, '\n');// 2. Clears the bad input from the input buffer
+  }// End of Validation
+
   //Inserting movie details
-  Movie newMovie(id, title, genre, price);
+  Movie newMovie(id, title, genre, price, quantity);
   bst.insert(newMovie);
 }
 
@@ -637,7 +698,8 @@ void delete_customer(CLL &cll) {//Pass the CLL by reference
   cout << endl;
 }
 
-void Rent_Movie()   //Rentting a movie function
+
+void Rent_Movie(BST &bst, CLL &cll)   //Renting a movie function
 {
 
   int MovieID;
@@ -647,7 +709,7 @@ void Rent_Movie()   //Rentting a movie function
 
   Movie *MovieToRent = bst.searchByID(MovieID);  //Finding the wanted movie
 
-  if (MovieToRent == NULL)  // Check if Movie doesn't exist
+  if (MovieToRent == nullptr)  // Check if Movie doesn't exist
   {
   cout << "Movie not found." << endl;
   return;
@@ -666,32 +728,32 @@ void Rent_Movie()   //Rentting a movie function
    cout << "Enter The ID for the customer you want to Rent a movie to: ";
    cin >> CustomerID;
 
-   Customer *Renter = searchCustomer(CustomerID);  //Finding the customer info.
+   Customer Renter = cll.searchCustomer(CustomerID);  //Finding the customer info.
 
 
-   if (Renter == NULL)
+   if (Renter.id == 0)
    {
       cout << "Customer not found." << endl;
       return;
    }
 
 
-   if (Renter-> counter == 10)  //Checking if customer may rent a movie
+   if (Renter.counter == 9)  //Checking if customer may rent a movie
    {
-     cout << "The customer have rented the maximum number allowed, customer must retun a movie to be able to rent another one"<<endl;
+     cout << "The customer have rented the maximum number allowed, customer must return a movie to be able to rent another one"<<endl;
      return;
    }
 
-   Renter->RentedMovies[Renter-> counter] = MovieToRent;  //add the movie to the customer's Rented Movies List
-   MovieToRent->quantity--;  //Decrease The number of avilable copies of the movie
-   Renter->counter++;  //increase the number of rented movies by the renter
+   Renter.rentedMovies[Renter.counter] = *MovieToRent;  //add the movie to the customer's Rented Movies List
+   MovieToRent->quantity--;  //Decrease The number of available copies of the movie
+   Renter.counter++;  //increase the number of rented movies by the renter
 
-   cout << "The Movie "<<MovieToRent-> name <<" is now rented to the customer "<<Renter->name<<endl;
+   cout << "The Movie "<<MovieToRent->title <<" is now rented to the customer "<<Renter.name<<endl;
 
 }
 
 
-void Return_Movie()   //Returnig a rented moviefunction
+void Return_Movie(CLL &cll)   //Returning a rented movie function
 {
 
   int RenterID;
@@ -699,36 +761,37 @@ void Return_Movie()   //Returnig a rented moviefunction
   cout << "Enter The Renter ID: ";
   cin >> RenterID;
 
-  Customer *Renter = searchCustomer(RenterID);  //Finding the Renter Info.
+  Customer Renter = cll.searchCustomer(RenterID);  //Finding the Renter Info.
 
-  if (Renter== NULL)  // Check if renter doesn't exist
+  if (Renter.id == 0)  // Check if renter doesn't exist
   {
     cout << "The Customer does not exist" << endl;
     return;
   }
+
   int MovieID, checker = 0;
-  Movie *RentedMovie = NULL;
+  Movie *RentedMovie = nullptr;
 
   cout << "Enter The ID of the movie you want to Return: ";
   cin >> MovieID;
 
-  for(int i=0;i<Renter->counter;i++)  //Loop go through all of the rented movies that the renter have
+  for(int i=0;i<Renter.counter;i++)  //Loop go through all of the rented movies that the renter have
   {
-    if(Renter->RentedMovies[i]-> id==MovieID)  // check the movies IDs
+    if(Renter.rentedMovies[i].id == MovieID)  // check the movies IDs
     {
-      RentedMovie = Renter->RentedMovies[i];  //finding the movie that the Renter want to return
-      checker=1;  //When the movie found assaign 1 to this variable (true)
+      RentedMovie = &Renter.rentedMovies[i];  //finding the movie that the Renter want to return
+      checker=1;  //When the movie found assign 1 to this variable (true)
     }
     if (checker==1)  //Check if this variable is 1 (true) to start the process
     {
-      Renter->RentedMovies[i]=Renter->RentedMovies[i+1];  //removing the movie from the renter's rented movies & shifting the rest of the elements if exist
+      Renter.rentedMovies[i] = Renter.rentedMovies[i+1];  //removing the movie from the renter's rented movies & shifting the rest of the elements if exist
     }
   }
   if (checker==1)  //Check if this variable is 1 (true)
   {
-  RentedMovie->quantity++;  //Increase The number of avilable copies of the movie
-  Renter->counter--;  //Decrease the number of rented movies by the renter
-  cout << "The movie " << RentedMovie->name << " has been successfully returned by " << Renter->name << "." << endl;
+  RentedMovie->quantity++;  //Increase The number of available copies of the movie
+  Renter.counter--;  //Decrease the number of rented movies by the renter
+  cout << "The movie " << RentedMovie->title << " has been successfully returned by " << Renter.name << "." << endl;
   }
   else
   {
@@ -736,6 +799,136 @@ void Return_Movie()   //Returnig a rented moviefunction
     return;
   }
 }
+
+void upload(BST &bst, CLL &cll) {
+  //uploading the customers' data
+  ofstream customers("Customer_data.dat",ios::binary);
+  if (customers) {
+    cll.upload(customers);
+    customers.close();
+    cout << "customer data uploaded successfully :)" << endl;
+  } else {
+    cout << "no existing customer file found :(" << endl;
+  }
+
+  //uploading the movies' data
+  ofstream movies("Movie_data.dat", ios::binary);
+  if (movies) {
+    bst.upload(movies);
+    movies.close();
+    cout << "movie data uploaded successfully :)" << endl;
+  } else {
+    cout << "no existing movie file found :(" << endl;
+  }
+
+
+}
+
+void download(BST &bst, CLL &cll) {
+  // downloading the customers' data
+  ifstream customers("Customer_data.dat", ios::binary);
+  if (customers) {
+    cll.download(customers);
+    customers.close();
+    cout << "Customer data downloaded successfully :D" << endl;
+  } else {
+    cout << "No existing file found :(" << endl;
+  }
+
+  // downloading the movies' data
+  ifstream movies("Movie_data.dat", ios::binary);
+  if (movies) {
+    bst.download(movies);
+    movies.close();
+    cout << "Movie data downloaded successfully :D" << endl;
+  } else {
+    cout << "No existing file found :(" << endl;
+  }
+}
+
+
+
+bool adminPassword(int &choice) {
+  string storedPassword = "bonelessPizza123";
+  string inputPassword;
+
+  cout << "\n--- Admin Authentication ---" << endl;
+  cout << "1. Login" << endl;
+  cout << "2. Change Password" << endl;
+  cout << "3. Exit" << endl;
+  cout << "Enter your choice: ";
+
+  while (!(cin >> choice)) {
+    cout << "Error: Please enter a valid number (1-3): ";
+    cin.clear();
+    cin.ignore(10000, '\n');
+  }
+  cin.ignore(10000, '\n');
+
+  switch (choice) {
+    case 1: //Login
+    {
+      cout << "Enter password: ";
+      getline(cin, inputPassword);
+
+      if (inputPassword == storedPassword) {
+        cout << "Authentication successful! Welcome." << endl;
+        return true;
+      } else {
+        cout << "Incorrect password. Access denied." << endl;
+        return false;
+      }
+    }
+    case 2: //Change Password
+    {
+      string oldPassword, newPassword, confirmPassword;
+
+      cout << "Enter old password: ";
+      getline(cin, oldPassword);
+
+      if (oldPassword != storedPassword) {
+        cout << "Incorrect old password. Password change failed." << endl;
+        return false;
+      }
+
+      cout << "Enter new password: ";
+      getline(cin, newPassword);
+
+      cout << "Confirm new password: ";
+      getline(cin, confirmPassword);
+
+      if (newPassword != confirmPassword) {
+        cout << "Passwords do not match. Password change failed." << endl;
+        return false;
+      }
+
+      if (newPassword.empty()) {
+        cout << "Password cannot be empty. Password change failed." << endl;
+        return false;
+      }
+
+      storedPassword = newPassword; // Password is changed
+    }
+    case 3: // Exit
+    {
+      cout << "Exiting authentication." << endl;
+      return false;
+    }
+    default:
+    {
+      cout << "Invalid choice." << endl;
+      return false;
+    }
+  }
+}
+
+
+
+
+
+
+
+
 
 
 void displayMenu(BST &Movies, CLL &Customers) {
@@ -751,13 +944,14 @@ void displayMenu(BST &Movies, CLL &Customers) {
         cout << "_______Welcome to the Movie Store_______" << endl;
         cout << "1. Employee (Customer & Rental Operations)" << endl;
         cout << "2. Manager (Movie/Admin Operations)" << endl;
-        cout << "3. Exit" << endl;
+        cout << "3. Save data " << endl;
+        cout << "4. Exit" << endl;
         cout << "-----------------------------------------" << endl;
         cout << "Enter your choice: ";
 
         // Input validation for the main menu choice
         while (!(cin >> choice)) {
-            cout << "Error: Please enter a valid number (1-3): ";
+            cout << "Error: Please enter a valid number (1-4): ";
             cin.clear();
             cin.ignore(10000, '\n');
         }
@@ -850,12 +1044,12 @@ void displayMenu(BST &Movies, CLL &Customers) {
                         }
                         case 5: // Rent a Movie (CLL + BST) - Basic Implementation
                         {
-                            Rent_Movie();
+                            Rent_Movie(Movies, Customers);
                             break;
                         }
                         case 6: // Return Movie (Needs implementation)
                         {
-                           Return_Movie();
+                           Return_Movie(Customers);
                             break;
                         }
                         case 7: // Display All Movies (BST)
@@ -880,6 +1074,20 @@ void displayMenu(BST &Movies, CLL &Customers) {
 
             case 2: // Manager Menu (Movie/Admin Operations) - Unchanged from previous correction
             {
+              bool access = false;
+              int adminChoice=0;
+
+                do {
+                  access = adminPassword(adminChoice);
+                  if (adminChoice == 3) {
+                    break;
+                  }
+                }while(access!=true);
+
+                if (adminChoice == 3) {
+                  break;
+                }
+
                 cout << "\n--- Manager Login ---" << endl;
 
                 do {
@@ -945,24 +1153,27 @@ void displayMenu(BST &Movies, CLL &Customers) {
             }
             case 3:
             {
-                cout << "\nExiting the Movie Store application. Goodbye!" << endl;
+                upload(Movies, Customers);
                 break;
             }
+            case 4:
+              cout << "\nExiting the Movie Store application. Goodbye!" << endl;
+              break;
             default:
             {
                 cout << "Invalid choice. Please enter 1, 2, or 3." << endl;
                 break;
             }
         }
-    } while (choice != 3);
+    } while (choice != 4);
 }
 
 int main () {
   BST Movies ;
   CLL Customers;
 
-  add_customer(Customers);
-  search_customer(Customers);
-  add_customer(Customers);
+  download(Movies, Customers);
+  displayMenu(Movies, Customers);
+
   return 0;
 }
