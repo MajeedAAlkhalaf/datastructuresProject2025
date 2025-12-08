@@ -927,7 +927,6 @@ void delete_customer(CLL &cll) {
 void Rent_Movie(BST &bst, CLL &cll)
 {
   int MovieID;
-
   while (true) {
     cout << "Enter The Movie ID you want to Rent:";
     cin >> MovieID;
@@ -1298,15 +1297,22 @@ void displayMenu(BST &Movies, CLL &Customers) {
                             cout << "\n--- Update Customer Info ---" << endl;
                             int update_id;
                             string new_name, new_phone, new_email;
-
-                            cout << "Enter Customer ID to update: ";
-                            while (!(cin >> update_id)) {
+                            while (true) {
+                              cout << "Enter Customer ID to update: ";
+                              while (!(cin >> update_id)) {
                                 cout << "Error: Please enter a valid number for ID: ";
                                 cin.clear();
                                 cin.ignore(10000, '\n');
-                            }
-                            cin.ignore(10000, '\n');
+                              }
+                              cin.ignore(10000, '\n');
 
+                              if (update_id > 100000 && update_id < 999999) {
+                                break;
+                              }
+                              else {
+                                cout << "Invalid. Please enter exactly 6 digits." << endl;
+                              }
+                            }
                             // Check if customer exists
                             if (Customers.searchCustomer(update_id).id == 0) {
                                 break;
