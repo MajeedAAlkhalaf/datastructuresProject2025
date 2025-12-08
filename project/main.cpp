@@ -660,16 +660,22 @@ void add_movie(BST &bst) {
 
   // Keep asking for ID until a unique one is entered
   do {
-    cout << "Enter ID: ";
-    while (!(cin >> id)) {
-      cout << "Error: Please enter a valid number for ID: ";
-      cin.clear();
+    while (true) {
+      cout << "Enter ID: ";
+      while (!(cin >> id)) {
+        cout << "Error: Please enter a valid number for ID: ";
+        cin.clear();
+        cin.ignore(10000, '\n');
+      }
       cin.ignore(10000, '\n');
+      if (id>=100000 && id<=999999) {
+        break;
+      }
+      else {
+        cout << "Invalid. Please enter exactly 6 digits." << endl;
+      }
     }
-    cin.ignore(10000, '\n');
-
     existingMovie = bst.searchByID(id);
-
     if (existingMovie != nullptr) {
       cout << "Movie with ID " << id << " already exists: " << existingMovie->title << ". Please enter a new, unique ID." << endl;
     }
@@ -709,14 +715,22 @@ void add_movie(BST &bst) {
 //   3. If found, displays all movie details; otherwise shows error
 void search_movie(BST &bst) {
   int id;
-  cout << "Enter ID you want to search: ";
+  while (true) {
+    cout << "Enter ID you want to search: ";
+      while (!(cin >> id)) {
+        cout << "Error: Please enter a valid number for ID: ";
+        cin.clear();
+        cin.ignore(10000, '\n');
+      }
+      cin.ignore(10000, '\n');
 
-  while (!(cin >> id)) {
-    cout << "Error: Please enter a valid number for ID: ";
-    cin.clear();
-    cin.ignore(10000, '\n');
+    if (id >= 100000 && id <= 999999) {
+      break;
+    }
+    else {
+      cout << "Invalid. Please enter exactly 6 digits." << endl;
+    }
   }
-  cin.ignore(10000, '\n');
 
   Movie *foundmovie = bst.searchByID(id);
 
@@ -740,15 +754,23 @@ void search_movie(BST &bst) {
 //   2. Calls the BST's delete function to remove it
 void delete_movie(BST &bst) {
   int id;
-  cout << "Enter Movie ID You want to delete: ";
 
-  while (!(cin >> id)) {
-    cout << "Error: Please enter a valid number for ID: ";
-    cin.clear();
-    cin.ignore(10000, '\n');
+  while (true) {
+    cout << "Enter Movie ID You want to delete: ";
+      while (!(cin >> id)) {
+        cout << "Error: Please enter a valid number for ID: ";
+        cin.clear();
+        cin.ignore(10000, '\n');
+      }
+      cin.ignore(10000, '\n');
+
+    if (id >= 100000 && id <= 999999) {
+      break;
+    }
+    else {
+      cout << "Invalid. Please enter exactly 6 digits." << endl;
+    }
   }
-  cin.ignore(10000, '\n');
-
   bst.deleteNode(id);
 }
 
@@ -767,14 +789,22 @@ void add_customer(CLL &cll) {
 
   // Keep asking for ID until a unique one is entered
   do {
-    cout << "Enter ID: ";
-    while (!(cin >> id)) {
-      cout << "Error: Please enter a valid number for ID: ";
-      cin.clear();
-      cin.ignore(10000, '\n');
-    }
-    cin.ignore(10000, '\n');
+    while (true) {
+      cout << "Enter ID: ";
+        while (!(cin >> id)) {
+          cout << "Error: Please enter a valid number for ID: ";
+          cin.clear();
+          cin.ignore(10000, '\n');
+        }
+        cin.ignore(10000, '\n');
 
+      if (id >= 100000 && id <= 999999) {
+        break;
+      }
+      else {
+        cout << "Invalid. Please enter exactly 6 digits." << endl;
+      }
+    }
     // Use silent check - doesn't print anything
     if (cll.customerExists(id)) {
       cout << "Customer with ID " << id << " already exists. Please enter a new, unique ID." << endl;
@@ -805,14 +835,23 @@ void add_customer(CLL &cll) {
 //   4. If not found, offers to add the customer
 void search_customer(CLL &cll) {
   int id;
-  cout << "Enter ID you want to search: ";
 
-  while (!(cin >> id)) {
-    cout << "Error: Please enter a valid number for ID: ";
-    cin.clear();
+  while (true) {
+    cout << "Enter ID you want to search: ";
+    while (!(cin >> id)) {
+      cout << "Error: Please enter a valid number for ID: ";
+      cin.clear();
+      cin.ignore(10000, '\n');
+    }
     cin.ignore(10000, '\n');
+
+    if (id >= 100000 && id <= 999999) {
+      break;
+    }
+    else {
+      cout << "Invalid. Please enter exactly 6 digits." << endl;
+    }
   }
-  cin.ignore(10000, '\n');
 
   Customer foundcustomer = cll.searchCustomer(id);
 
@@ -857,14 +896,22 @@ void search_customer(CLL &cll) {
 //   2. Calls the CLL's delete function to remove them
 void delete_customer(CLL &cll) {
   int id;
+  while (true) {
   cout << "Enter ID you want to delete: ";
-
   while (!(cin >> id)) {
     cout << "Error: Please enter a valid number for ID: ";
     cin.clear();
     cin.ignore(10000, '\n');
   }
   cin.ignore(10000, '\n');
+
+    if (id >= 100000 && id <= 999999) {
+      break;
+    }
+    else {
+      cout << "Invalid. Please enter exactly 6 digits." << endl;
+    }
+  }
 
   cll.deleteCustomer(id);
   cout << endl;
@@ -881,8 +928,16 @@ void Rent_Movie(BST &bst, CLL &cll)
 {
   int MovieID;
 
-  cout << "Enter The Movie ID you want to Rent:";
-  cin >> MovieID;
+  while (true) {
+    cout << "Enter The Movie ID you want to Rent:";
+    cin >> MovieID;
+    if (MovieID >= 100000 && MovieID <= 999999) {
+      break;
+    }
+    else {
+      cout << "Invalid. Please enter exactly 6 digits." << endl;
+    }
+  }
 
   // Find the movie
   Movie *MovieToRent = bst.searchByID(MovieID);
@@ -902,9 +957,16 @@ void Rent_Movie(BST &bst, CLL &cll)
 
   int CustomerID;
 
-  cout << "Enter The ID for the customer you want to Rent a movie to:";
-  cin >> CustomerID;
-
+  while (true) {
+    cout << "Enter The ID for the customer you want to Rent a movie to:";
+    cin >> CustomerID;
+    if (CustomerID >= 100000 && CustomerID <= 999999) {
+      break;
+    }
+    else {
+      cout << "Invalid. Please enter exactly 6 digits." << endl;
+    }
+  }
 
   Customer* Renter = cll.searchCustomerPtr(CustomerID);
 
@@ -940,10 +1002,16 @@ void Rent_Movie(BST &bst, CLL &cll)
 void Return_Movie(BST &bst, CLL &cll)
 {
   int RenterID;
-
-  cout << "Enter The Renter ID:";
-  cin >> RenterID;
-
+  while (true) {
+    cout << "Enter The Renter ID:";
+    cin >> RenterID;
+    if (RenterID >= 100000 && RenterID <= 999999) {
+      break;
+    }
+    else {
+      cout << "Invalid. Please enter exactly 6 digits." << endl;
+    }
+  }
 
   Customer* Renter = cll.searchCustomerPtr(RenterID);
 
@@ -963,8 +1031,16 @@ void Return_Movie(BST &bst, CLL &cll)
   int MovieID;
   int foundIndex = -1;
 
-  cout << "Enter The ID of the movie you want to Return:";
-  cin >> MovieID;
+  while (true) {
+    cout << "Enter The ID of the movie you want to Return:";
+    cin >> MovieID;
+    if (MovieID >= 100000 && MovieID <= 999999) {
+      break;
+    }
+    else {
+      cout << "Invalid. Please enter exactly 6 digits." << endl;
+    }
+  }
 
   // Find the movie in the renter's list
   for (int i = 0; i < Renter->counter; i++)
