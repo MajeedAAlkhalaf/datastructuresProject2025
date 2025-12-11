@@ -1,10 +1,14 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <queue>
+#include <utility>
 using namespace std;
 
 // Maximum number of movies a customer can rent at once
 const int max_rent = 10;
+
+queue<pair<int,int>> idRanges;
 
 
 // MOVIE STRUCT
@@ -643,69 +647,106 @@ public:
 
 };
 
+
+
+
+void saveIDState() {
+    ofstream file("id_state.txt");
+    queue<pair<int,int>> temp = idRanges;
+
+    while (!temp.empty()) {
+        auto r = temp.front();
+        temp.pop();
+        file << r.first << " " << r.second << "\n";
+    }
+    file.close();
+}
+
+void loadIDState() {
+    ifstream file("id_state.txt");
+    int L, R;
+
+    while (file >> L >> R) {
+        idRanges.push({L, R});
+    }
+    file.close();
+}
+
+
+
+
+void initIDRanges() {
+    if (idRanges.empty()) {
+        idRanges.push({1, 1048576});   // full balanced range
+    }
+}
+
+
+
+int generateBalancedID() {
+    if (idRanges.empty())
+        return -1;
+
+    auto range = idRanges.front();
+    idRanges.pop();
+
+    int L = range.first;
+    int R = range.second;
+    int mid = (L + R) / 2;
+
+    if (L <= mid - 1)
+        idRanges.push({L, mid - 1});
+
+    if (mid + 1 <= R)
+        idRanges.push({mid + 1, R});
+
+    return mid;
+}
+
+
 // add_movie
 // How it works:
 //   1. Asks for a unique ID (loops until unique ID is entered)
 //   2. Gets title, genre, price, and quantity from user
 //   3. Creates a Movie object and inserts it into the BST
 void add_movie(BST &bst) {
-  int id;
-  string title;
-  string genre;
-  float price;
-  int quantity;
-  Movie *existingMovie = nullptr;
+    int id;
+    string title;
+    string genre;
+    float price;
+    int quantity;
 
-  cout << "---Add New Movie---" << endl;
+    cout << "---Add New Movie---" << endl;
 
-  // Keep asking for ID until a unique one is entered
-  do {
-    while (true) {
-      cout << "Enter ID: ";
-      while (!(cin >> id)) {
-        cout << "Error: Please enter a valid number for ID: ";
+    // AUTO ID
+    id = generateBalancedID();
+    cout << "Generated ID: " << id << endl;
+
+
+    cout << "Enter title: ";
+    getline(cin, title);
+
+    cout << "Enter genre: ";
+    getline(cin, genre);
+
+    cout << "Enter price: ";
+    while (!(cin >> price)) {
+        cout << "Error: enter a valid number: ";
         cin.clear();
         cin.ignore(10000, '\n');
-      }
-      cin.ignore(10000, '\n');
-      if (id>=100000 && id<=999999) {
-        break;
-      }
-      else {
-        cout << "Invalid. Please enter exactly 6 digits." << endl;
-      }
     }
-    existingMovie = bst.searchByID(id);
-    if (existingMovie != nullptr) {
-      cout << "Movie with ID " << id << " already exists: " << existingMovie->title << ". Please enter a new, unique ID." << endl;
+
+    cout << "Enter quantity: ";
+    while (!(cin >> quantity)) {
+        cout << "Error: enter a valid number: ";
+        cin.clear();
+        cin.ignore(10000, '\n');
     }
-  }while (existingMovie != nullptr);
 
-  // Get remaining movie details
-  cout << "Enter title: ";
-  getline(cin, title);
+    Movie newMovie(id, title, genre, price, quantity);
+    bst.insert(newMovie);
 
-  cout << "Enter genre: ";
-  getline(cin, genre);
-
-  cout << "Enter price: ";
-  while (!(cin >> price)) {
-    cout << "Error: Please enter a valid number for Price: ";
-    cin.clear();
-    cin.ignore(10000, '\n');
-  }
-  cin.ignore(10000, '\n');
-
-  cout << "Enter quantity available: ";
-  while (!(cin >> quantity)) {
-    cout << "Error: Please enter a valid number for quantity: ";
-    cin.clear();
-    cin.ignore(10000, '\n');
-  }
-
-  // Create and add the movie
-  Movie newMovie(id, title, genre, price, quantity);
-  bst.insert(newMovie);
+    cout << "Movie added successfully!\n";
 }
 
 // search_movie
@@ -1450,6 +1491,7 @@ void displayMenu(BST &Movies, CLL &Customers) {
             case 3:   // Save data option
             {
                 upload(Movies, Customers);
+                saveIDState();  // Save queue back to file
                 break;
             }
             case 4:   // Exit option
@@ -1473,6 +1515,11 @@ void displayMenu(BST &Movies, CLL &Customers) {
 int main () {
   BST Movies ;        // Binary Search Tree to store movies
   CLL Customers;      // Circular Linked List to store customers
+
+
+loadIDState();    // load queue from last run
+initIDRanges();   // initialize only if file was empty
+
 
   // Load saved data from files
   download(Movies, Customers);
