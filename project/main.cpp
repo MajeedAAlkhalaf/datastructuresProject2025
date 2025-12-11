@@ -722,7 +722,7 @@ void add_movie(BST &bst) {
     id = generateBalancedID();
     cout << "Generated ID: " << id << endl;
 
-
+    cin.ignore();
     cout << "Enter title: ";
     getline(cin, title);
 
